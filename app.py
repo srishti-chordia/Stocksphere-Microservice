@@ -42,9 +42,10 @@ def predict():
 
         return render_template('result.html', stocks=suggested_stocks_list)
 
-except Exception as e:
-        return render_template('result.html', error=str(e))        
+    except Exception as e:
+        return render_template('result.html', error=str(e))
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
