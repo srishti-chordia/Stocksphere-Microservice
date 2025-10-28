@@ -1,64 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Investor Profile Quiz</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-  <div class="container">
+  <div class="quiz-container">
     <h2>Investor Profile Quiz</h2>
-    <form method="POST" action="/predict">
-      <label>Age Group</label>
-      <select name="age" required>
-        <option>18-25</option>
-        <option>25-35</option>
-        <option>35-50</option>
-        <option>50+</option>
-      </select>
-
+    <form action="/predict" method="POST">
       <label>Investment Horizon</label>
-      <select name="horizon" required>
-        <option>Short Term</option>
-        <option>Medium Term</option>
-        <option>Long Term</option>
+      <select name="investment_horizon" required>
+        <option value="short">Short Term</option>
+        <option value="medium">Medium Term</option>
+        <option value="long">Long Term</option>
       </select>
 
       <label>Financial Experience</label>
-      <select name="experience" required>
-        <option>Beginner</option>
-        <option>Intermediate</option>
-        <option>Advanced</option>
-      </select>
-
-      <label>Annual Income (Optional)</label>
-      <select name="income">
-        <option><5L</option>
-        <option>5-10L</option>
-        <option>10-20L</option>
-        <option>20L+</option>
+      <select name="financial_experience" required>
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="expert">Expert</option>
       </select>
 
       <label>Risk Tolerance</label>
-      <div class="radio">
-        <label><input type="radio" name="risk" value="Low" required> Low</label>
-        <label><input type="radio" name="risk" value="Medium"> Medium</label>
-        <label><input type="radio" name="risk" value="High"> High</label>
+      <div class="radio-group">
+        <input type="radio" name="risk_tolerance" value="low" required> Low<br>
+        <input type="radio" name="risk_tolerance" value="medium"> Medium<br>
+        <input type="radio" name="risk_tolerance" value="high"> High
       </div>
 
       <button type="submit">Calculate My Profile</button>
     </form>
-
-    {% if result %}
-    <div class="result">
-      <h3>Suggested Stocks:</h3>
-      <ul>
-        {% for stock in result %}
-          <li>{{ stock }}</li>
-        {% endfor %}
-      </ul>
-    </div>
-    {% endif %}
   </div>
 </body>
 </html>
