@@ -4,7 +4,7 @@ import numpy as np
 
 app = Flask(__name__)
 
-# Load trained ML model
+# Load your trained ML model
 with open("model.pkl", "rb") as file:
     model = pickle.load(file)
 
@@ -15,13 +15,14 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
+        # Get all form inputs
         age_group = request.form['age_group']
         investment_horizon = request.form['investment_horizon']
         financial_experience = request.form['financial_experience']
         annual_income = request.form['annual_income']
         risk_tolerance = request.form['risk_tolerance']
 
-        # Encode categorical inputs numerically
+        # Convert categorical inputs into numeric form
         mapping = {
             'Low': 0, 'Medium': 1, 'High': 2,
             'Beginner': 0, 'Intermediate': 1, 'Expert': 2,
@@ -39,16 +40,32 @@ def predict():
         ]
 
         features = np.array(features).reshape(1, -1)
-        predicted_indices = model.predict(features)
 
-        # For example purposes, we’ll map model outputs to stocks
+        # Make prediction
+        predicted_indices = model.predict(features)
+        print("Model prediction:", predicted_indices)  # Debugging info
+
+        # Stock category mapping (you can tweak as you like)
         stock_map = {
-            0: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA'],
-            1: ['TCS.NS', 'INFY.NS', 'HDFCBANK.NS', 'RELIANCE.NS', 'ICICIBANK.NS'],
-            2: ['TSLA', 'META', 'NFLX', 'ADBE', 'AMD']
+            0: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA'],  # Global tech
+            1: ['TCS.NS', 'INFY.NS', 'HDFCBANK.NS', 'RELIANCE.NS', 'ICICIBANK.NS'],  # Indian blue chips
+            2: ['TSLA', 'META', 'NFLX', 'ADBE', 'AMD'],  # Growth stocks
+            3: ['BA', 'NKE', 'KO', 'PEP', 'MCD'],  # Consumer & industrial
+            4: ['JPM', 'GS', 'BAC', 'MS', 'V']  # Financial sector
         }
 
-        stocks = stock_map.get(int(predicted_indices[0]), ['No suggestions available'])
+        # Handle all kinds of outputs gracefully
+        pred = predicted_indices[0]
+        try:
+            # If model returns something like np.float or np.int
+            pred = int(pred)
+        except:
+            # If model returns string labels like 'High'
+            label_map = {'Low': 0, 'Medium': 1, 'High': 2}
+            pred = label_map.get(str(pred).capitalize(), 0)
+
+        # Get corresponding stock suggestions
+        stocks = stock_map.get(pred, stock_map[0])
 
         return render_template('result.html', stocks=stocks)
 
