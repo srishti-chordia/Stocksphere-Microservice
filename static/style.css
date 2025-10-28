@@ -1,50 +1,42 @@
 body {
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f5f6fa;
+  font-family: Arial, sans-serif;
+  background: #f9f9ff;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
 }
 
-.container {
+.quiz-container, .result-container {
   background: white;
-  border-radius: 10px;
-  padding: 30px 40px;
-  width: 400px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  width: 350px;
+}
+
+h2 {
+  color: #4b3aff;
+  margin-bottom: 1rem;
+  text-align: center;
 }
 
 label {
-  font-weight: 500;
   display: block;
-  margin-top: 15px;
+  margin-top: 1rem;
 }
 
-select, input[type="radio"] {
-  margin-top: 8px;
+select, input[type=radio] {
+  margin-top: 0.5rem;
 }
 
 button {
-  margin-top: 25px;
-  width: 100%;
-  padding: 10px;
-  border: none;
-  background-color: #6c63ff;
+  background: #4b3aff;
   color: white;
-  font-size: 16px;
+  border: none;
+  padding: 10px 15px;
   border-radius: 6px;
   cursor: pointer;
-}
-
-.result {
-  margin-top: 25px;
-  background: #f0f2ff;
-  padding: 15px;
-  border-radius: 6px;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
+  margin-top: 1rem;
+  width: 100%;
 }
