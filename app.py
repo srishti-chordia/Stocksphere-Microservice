@@ -1,39 +1,37 @@
 from flask import Flask, render_template, request
 import pickle
-import pandas as pd
+import numpy as np
 
 app = Flask(__name__)
 
-# Load model and encoders
-model = pickle.load(open("model.pkl", "rb"))
-encoders = pickle.load(open("encoders.pkl", "rb"))
+# Load your trained model
+model = pickle.load(open('model.pkl', 'rb'))
 
-
-@app.route("/")
+@app.route('/')
 def home():
-    return render_template("index.html")
+    return render_template('index.html')
 
-
-@app.route("/predict", methods=["POST"])
+@app.route('/predict', methods=['POST'])
 def predict():
-    data = {
-        "AgeGroup": [request.form["age"]],
-        "Horizon": [request.form["horizon"]],
-        "Experience": [request.form["experience"]],
-        "Income": [request.form["income"]],
-        "RiskTolerance": [request.form["risk"]],
-    }
+    try:
+        risk_tolerance = request.form['risk_tolerance']
+        investment_horizon = request.form['investment_horizon']
+        financial_exp = request.form['financial_experience']
 
-    df = pd.DataFrame(data)
-    for col in df.columns:
-        df[col] = encoders[col].transform(df[col])
+        # Convert form inputs to numeric or categorical encodings as per your model
+        # Example (customize this based on your model’s training data):
+        features = np.array([[risk_tolerance, investment_horizon, financial_exp]])
 
-    probs = model.predict_proba(df)[0]
-    top_indices = probs.argsort()[-6:][::-1]
-    top_tickers = encoders["Ticker"].inverse_transform(top_indices)
+        # Predict using your model
+        suggested_stocks = model.predict(features)
 
-    return render_template("index.html", result=top_tickers)
+        # If your model returns stock indices or names, handle it here
+        suggested_stocks_list = suggested_stocks[:6]  # show top 5–6
 
+        return render_template('result.html', stocks=suggested_stocks_list)
 
-if __name__ == "__main__":
+    except Exception as e:
+        return render_template('result.html', error=str(e))
+
+if __name__ == '__main__':
     app.run(debug=True)
