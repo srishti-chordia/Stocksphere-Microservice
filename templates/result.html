@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Suggested Stocks</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="result-container">
+    <h2>Suggested Stocks</h2>
+    {% if error %}
+      <p style="color:red;">Error: {{ error }}</p>
+    {% else %}
+      <ul>
+        {% for stock in stocks %}
+          <li>{{ stock }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    <a href="/">Back</a>
+  </div>
+</body>
+</html>
