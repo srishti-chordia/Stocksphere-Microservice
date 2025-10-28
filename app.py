@@ -1,12 +1,12 @@
 from flask import Flask, render_template, request
-import numpy as np
 import pickle
+import numpy as np
 
 app = Flask(__name__)
 
-# Load trained model and encoders
-model = pickle.load(open("model.pkl", "rb"))
-encoders = pickle.load(open("encoder.pkl", "rb"))
+# Load trained ML model
+with open("model.pkl", "rb") as file:
+    model = pickle.load(file)
 
 @app.route('/')
 def home():
@@ -15,38 +15,45 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        # Get form inputs
         age_group = request.form['age_group']
         investment_horizon = request.form['investment_horizon']
-        financial_exp = request.form['financial_experience']
+        financial_experience = request.form['financial_experience']
         annual_income = request.form['annual_income']
         risk_tolerance = request.form['risk_tolerance']
 
-        # Encoding maps — must match your training encodings
-        age_map = {'18-25': 0, '26-35': 1, '36-50': 2, '50+': 3}
-        horizon_map = {'short': 0, 'medium': 1, 'long': 2}
-        exp_map = {'beginner': 0, 'intermediate': 1, 'expert': 2}
-        income_map = {'low': 0, 'medium': 1, 'high': 2}
-        risk_map = {'low': 0, 'medium': 1, 'high': 2}
+        # Encode categorical inputs numerically
+        mapping = {
+            'Low': 0, 'Medium': 1, 'High': 2,
+            'Beginner': 0, 'Intermediate': 1, 'Expert': 2,
+            'Short-term': 0, 'Medium-term': 1, 'Long-term': 2,
+            '18-25': 0, '26-40': 1, '41-60': 2, '60+': 3,
+            'Below 5L': 0, '5L-10L': 1, '10L-25L': 2, '25L+': 3
+        }
 
-        # Create input array in the same feature order used during training
-        features = np.array([
-            age_map[age_group],
-            horizon_map[investment_horizon],
-            exp_map[financial_exp],
-            income_map[annual_income],
-            risk_map[risk_tolerance]
-        ]).reshape(1, -1)
+        features = [
+            mapping.get(age_group, 0),
+            mapping.get(investment_horizon, 0),
+            mapping.get(financial_experience, 0),
+            mapping.get(annual_income, 0),
+            mapping.get(risk_tolerance, 0)
+        ]
 
-        # Predict probabilities and get top 5–6 stocks
-        probs = model.predict_proba(features)[0]
-        top_indices = probs.argsort()[-6:][::-1]
-        top_stocks = encoders['Ticker'].inverse_transform(top_indices)
+        features = np.array(features).reshape(1, -1)
+        predicted_indices = model.predict(features)
 
-        return render_template('result.html', stocks=top_stocks)
+        # For example purposes, we’ll map model outputs to stocks
+        stock_map = {
+            0: ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA'],
+            1: ['TCS.NS', 'INFY.NS', 'HDFCBANK.NS', 'RELIANCE.NS', 'ICICIBANK.NS'],
+            2: ['TSLA', 'META', 'NFLX', 'ADBE', 'AMD']
+        }
+
+        stocks = stock_map.get(int(predicted_indices[0]), ['No suggestions available'])
+
+        return render_template('result.html', stocks=stocks)
 
     except Exception as e:
-        return render_template('result.html', error=str(e))
+        return render_template('result.html', stocks=[f"Error: {str(e)}"])
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
